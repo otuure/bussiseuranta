@@ -141,6 +141,12 @@ input {
     color: #22c55e
 }
 
+.tekijanoikeus {
+    text-align: center;
+    margin-top: 50px;
+    opacity: .7
+}
+
 #updated {
     text-align: center;
     margin-top: 20px;
