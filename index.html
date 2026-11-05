@@ -3,26 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Föli Seuraava Lähtö</title>
+<title>Föli Lähtönäyttö</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
 <h1>Föli - Seuraava lähtö</h1>
 <div class="search-container">
-<input type="text" id="searchInput" placeholder="Hae pysäkkiä nimellä tai numerolla" autocomplete="off">
+<input type="text" id="searchInput" placeholder="Hae pysäkkiä nimellä tai numerolla">
 <div id="searchResults" class="search-results"></div>
 </div>
 <div id="stopInfo" class="hidden">
 <h2 id="stopName"></h2>
 <div class="main-departure">
+<div class="departure-left">
 <div id="mainLine" class="line"></div>
-<div id="mainTime" class="time"></div>
 <div id="mainDestination" class="destination"></div>
 </div>
-<div class="next-departures">
-<div class="departure-card"><div id="next1Line"></div><div id="next1Time"></div><div id="next1Destination"></div></div>
-<div class="departure-card"><div id="next2Line"></div><div id="next2Time"></div><div id="next2Destination"></div></div>
+<div class="departure-middle">
+<div id="mainScheduledTime" class="time"></div>
+<div class="time-label">Aikataulun mukainen lähtö</div>
+</div>
+<div class="departure-right">
+<div id="mainEstimatedTime" class="time realtime"></div>
+<div class="time-label">Arvioitu lähtö</div>
+</div>
 </div>
 <div id="updated"></div>
 </div>
