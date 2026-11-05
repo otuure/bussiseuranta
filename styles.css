@@ -93,11 +93,11 @@ input {
 .time {
     font-size: 48px;
     font-weight: 700;
-    color: #2f26f2
+    color: #38bdf8
 }
 
 .realtime {
-    color: #9227b9
+    color: #22c55e
 }
 
 .time-label {
@@ -131,14 +131,14 @@ input {
 
 .departure-card div:nth-child(3) {
     font-weight: bold;
-    font-size: 16px;
-    color: #2f26f2
+    font-size: 20px;
+    color: #38bdf8
 }
 
 .departure-card div:nth-child(4) {
     font-weight: bold;
     font-size: 16px;
-    color: #9227b9
+    color: #22c55e
 }
 
 #updated {
