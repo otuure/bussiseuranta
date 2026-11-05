@@ -1,1 +1,124 @@
-const searchInput=document.getElementById("searchInput");const searchResults=document.getElementById("searchResults");let stops=[];let selectedStop=null;let refreshTimer=null;loadStops();async function loadStops(){try{const r=await fetch("https://data.foli.fi/gtfs/stops");const d=await r.json();stops=Object.values(d)}catch(e){console.error(e)}}searchInput.addEventListener("input",()=>{const s=searchInput.value.trim().toLowerCase();if(s.length<2){searchResults.innerHTML="";return}const m=stops.filter(stop=>stop.stop_name.toLowerCase().includes(s)||String(stop.stop_code).includes(s)).slice(0,10);searchResults.innerHTML="";m.forEach(stop=>{const div=document.createElement("div");div.className="result-item";div.textContent=`${stop.stop_name} (${stop.stop_code})`;div.onclick=async()=>{selectedStop=stop;searchInput.value=div.textContent;searchResults.innerHTML="";await loadDepartures();if(refreshTimer)clearInterval(refreshTimer);refreshTimer=setInterval(loadDepartures,60000)};searchResults.appendChild(div)})});async function loadDepartures(){if(!selectedStop)return;try{const r=await fetch(`https://data.foli.fi/siri/sm/${selectedStop.stop_code}`);const data=await r.json();const visits=data.result||data.visits||[];const departures=[];visits.forEach(v=>{const j=v.monitoredVehicleJourney||v.MonitoredVehicleJourney;if(!j)return;departures.push({line:j.lineRef||j.publishedLineName||'-',destination:j.destinationName||'',time:j.expectedDepartureTime||j.aimedDepartureTime})});departures.sort((a,b)=>new Date(a.time)-new Date(b.time));renderDepartures(departures)}catch(e){console.error(e)}}function renderDepartures(d){if(!d.length)return;document.getElementById('stopInfo').classList.remove('hidden');document.getElementById('stopName').textContent=selectedStop.stop_name;fillMain(d[0]);fillNext(d[1],'next1');fillNext(d[2],'next2');document.getElementById('updated').textContent='Päivitetty: '+new Date().toLocaleTimeString('fi-FI')}function fillMain(dep){if(!dep)return;mainLine.textContent=dep.line;mainDestination.textContent=dep.destination;mainTime.textContent=formatTime(dep.time)}function fillNext(dep,p){if(!dep)return;document.getElementById(p+'Line').textContent=dep.line;document.getElementById(p+'Destination').textContent=dep.destination;document.getElementById(p+'Time').textContent=formatTime(dep.time)}function formatTime(t){return new Date(t).toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'})}
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+
+let stops = [];
+let selectedStop = null;
+let refreshTimer = null;
+
+loadStops();
+
+async function loadStops() {
+    try {
+        const response = await fetch("https://data.foli.fi/gtfs/stops");
+        const data = await response.json();
+        stops = Object.values(data);
+    } catch (err) {
+        console.error(err);
+        alert("Pysäkkien lataus epäonnistui.");
+    }
+}
+
+searchInput.addEventListener("input", () => {
+    const search = searchInput.value.trim().toLowerCase();
+
+    if (search.length < 2) {
+        searchResults.innerHTML = "";
+        return;
+    }
+
+    const matches = stops
+        .filter(stop =>
+            stop.stop_name.toLowerCase().includes(search) ||
+            String(stop.stop_code).includes(search)
+        )
+        .slice(0, 10);
+
+    searchResults.innerHTML = "";
+
+    matches.forEach(stop => {
+        const div = document.createElement("div");
+        div.className = "result-item";
+        div.textContent = `${stop.stop_name} (${stop.stop_code})`;
+
+        div.onclick = async () => {
+            selectedStop = stop;
+            searchInput.value = div.textContent;
+            searchResults.innerHTML = "";
+
+            await loadDepartures();
+
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = setInterval(loadDepartures, 60000);
+        };
+
+        searchResults.appendChild(div);
+    });
+});
+
+async function loadDepartures() {
+    if (!selectedStop) return;
+
+    try {
+        const response = await fetch(
+            `https://data.foli.fi/siri/sm/${selectedStop.stop_code}`
+        );
+
+        const data = await response.json();
+
+        if (!data.result || data.result.length === 0) {
+            alert("Lähtöjä ei löytynyt.");
+            return;
+        }
+
+        const departures = data.result.map(item => ({
+            line: item.lineref || "-",
+            destination: item.destinationdisplay || "",
+            time: (item.expecteddeparturetime || item.aimeddeparturetime) * 1000
+        }));
+
+        departures.sort((a, b) => a.time - b.time);
+
+        renderDepartures(departures);
+
+    } catch (err) {
+        console.error(err);
+        alert("Lähtötietojen lataaminen epäonnistui.");
+    }
+}
+
+function renderDepartures(departures) {
+    document.getElementById("stopInfo").classList.remove("hidden");
+
+    document.getElementById("stopName").textContent =
+        selectedStop.stop_name;
+
+    fillMain(departures[0]);
+    fillNext(departures[1], "next1");
+    fillNext(departures[2], "next2");
+
+    document.getElementById("updated").textContent =
+        "Päivitetty: " + new Date().toLocaleTimeString("fi-FI");
+}
+
+function fillMain(dep) {
+    if (!dep) return;
+
+    document.getElementById("mainLine").textContent = dep.line;
+    document.getElementById("mainDestination").textContent = dep.destination;
+    document.getElementById("mainTime").textContent = formatTime(dep.time);
+}
+
+function fillNext(dep, prefix) {
+    if (!dep) return;
+
+    document.getElementById(prefix + "Line").textContent = dep.line;
+    document.getElementById(prefix + "Destination").textContent = dep.destination;
+    document.getElementById(prefix + "Time").textContent = formatTime(dep.time);
+}
+
+function formatTime(timestamp) {
+    return new Date(timestamp).toLocaleTimeString("fi-FI", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
